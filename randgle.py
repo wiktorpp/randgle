@@ -28,7 +28,8 @@ async def on_message(message):
                 "-> block add/remove <tags> (to add/remove tags you are not intrested in)\n"
                 "(a server reboot may reset all prefferences)"
                 "After that send:\n"
-                "-> wait <time> (if you prefer to wait for someone to add you)\n"
+                "-> wait (if you prefer to wait for someone to add you)\n"
+                "-> stop (to delete yourself from the waiting list)"
                 "-> search (if you prefer to add someone)"
                 "Other commands:\n"
                 "-> pref (to get your prefferences)\n"
@@ -71,14 +72,16 @@ async def on_message(message):
         elif message.content.lower().startswith("pref"):
             await message.channel.send(prefferences[message.author])
         elif message.content.lower().startswith("reset"):
-            prefferences[message.author] = {"am": set(), "looking": set(), "must":set(), "block": set()}
+            prefferences[message.author] = {"am": set(), "looking": set(), "block": set()}
 
         elif message.content.startswith("wait"):
-            waitingList.append((message.author, "time"))
+            waitingList.append(message.author)
+        elif message.content.startswith("stop"):
+            waitingList.remove(message.author)
         elif message.content.startswith("search"):
-            for stranger, time in waitingList:
-                #if str(stranger) == str(message.author):
-                #    continue
+            for stranger in waitingList:
+                if str(stranger) == str(message.author):
+                    continue
                 if len(prefferences[message.author]["am"].intersection(prefferences[stranger]["block"])) >= 1:
                     continue
                 if len(prefferences[message.author]["block"].intersection(prefferences[stranger]["am"])) >= 1:
@@ -90,6 +93,10 @@ async def on_message(message):
                 if not prefferences[message.author]["looking"].issubset(prefferences[stranger]["am"]):
                     continue
                 if not prefferences[stranger]["looking"].issubset(prefferences[message.author]["am"]):
+                    continue
+                if prefferences[message.author]["block"] & prefferences[stranger]["am"]:
+                    continue
+                if not prefferences[stranger]["block"] & prefferences[message.author]["am"]:
                     continue
                 await message.channel.send(stranger)
                 await message.channel.send(prefferences[stranger])
