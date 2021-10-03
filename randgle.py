@@ -82,14 +82,6 @@ async def on_message(message):
             for stranger in waitingList:
                 if str(stranger) == str(message.author):
                     continue
-                if len(prefferences[message.author]["am"].intersection(prefferences[stranger]["block"])) >= 1:
-                    continue
-                if len(prefferences[message.author]["block"].intersection(prefferences[stranger]["am"])) >= 1:
-                    continue
-                if not len(prefferences[message.author]["am"].intersection(prefferences[stranger]["looking"])) >= 1:
-                    continue
-                if not len(prefferences[message.author]["looking"].intersection(prefferences[stranger]["am"])) >= 1:
-                    continue
                 if not prefferences[message.author]["looking"].issubset(prefferences[stranger]["am"]):
                     continue
                 if not prefferences[stranger]["looking"].issubset(prefferences[message.author]["am"]):
